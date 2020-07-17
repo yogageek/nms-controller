@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nms-controller
+spec:
+  selector:
+    matchLabels:
+      run: nms-controller
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: nms-controller
+    spec:
+      containers:
+      - name: nms-controller
+        image: iiicondor/controller:1.0.0
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128M
+            ephemeral-storage: 128M
+          limits:
+            cpu: 100m
+            memory: 128M
+            ephemeral-storage: 256M
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: POSTGRES_URL
+          value: "host=61.219.26.42 port=5432 user=postgres password=4ziw9jh70b3v0yydbk48 dbname=nms sslmode=disable"
+        - name: EXPORTER_URL
+          value: "smart-exporter-svc-nms-eks005.sa.wise-paas.com"
+        - name: REDIS_ADDR
+          value: "61.219.26.45:32041"
+        - name: REDIS_PASSWORD
+          value: ""
+        - name: REDIS_DB
+          value: "0"
+        - name: REDIS_POOLSIZE
+          value: "5"
+        - name: URI_IMEC
+          value: "http://60.250.213.46:15987"
