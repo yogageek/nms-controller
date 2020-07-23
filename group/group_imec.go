@@ -1,9 +1,10 @@
-package logic
+package group
 
 import (
 	"encoding/json"
 	"fmt"
 	"nms-controller/model"
+	"nms-controller/util"
 	"os"
 
 	"github.com/buger/jsonparser"
@@ -20,7 +21,7 @@ var imec_system = []string{"dns", "gwc", "upf"}
 var testResponse0 = []byte(`{"status":0}`)
 var testResponse1 = []byte(`[{"status":1}]`)
 
-func doImec() (groups []model.Group) {
+func DoImec() (groups []model.Group) {
 	//# groupkey名稱先寫死 management database system
 	group1 := buildGroupImec("management", imec_management)
 	group2 := buildGroupImec("database", imec_database)
@@ -53,8 +54,7 @@ func buildGroupImec(groupkey string, groupsubs []string) model.Group {
 
 func getApi(gsub string) *string {
 	uri := uriImec + prefix + gsub
-	fmt.Println(uri)
-	response, err := getResponseAndCheckJson(uri)
+	response, err := util.GetResponseAndCheckJson(uri)
 	if err != nil {
 		//如果api壞掉或沒回應 一律給2(=檢查中)
 		v := "2"

@@ -1,4 +1,4 @@
-package logic
+package group
 
 import (
 	"nms-controller/model"
@@ -11,7 +11,7 @@ import (
 
 var uriSon = os.Getenv("URI_SON")
 
-func doSon() (groups []model.Group) {
+func DoSon() (groups []model.Group) {
 	response, err := getApiForAll(uriSon)
 	if err != nil {
 		glog.Error(err)

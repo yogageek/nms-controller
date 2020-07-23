@@ -4,6 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/golang/glog"
+	"github.com/imroc/req"
 )
 
 func CheckAndPrettyJson(b []byte) ([]byte, error) {
@@ -36,4 +42,42 @@ func ToMapList(keys []string, values []string) []map[string]string {
 	}
 	maplist = append(maplist, m)
 	return maplist
+}
+
+func GetResponseAndCheckJson(url string) ([]byte, error) {
+	ts, err := strconv.Atoi(os.Getenv("TIMEOUT_SEC"))
+	if err != nil {
+		glog.Error(err)
+	}
+	// fmt.Println("Request URL:" + url)
+	timeoutSeconds := time.Duration(ts) * time.Second
+	req.SetTimeout(timeoutSeconds)
+	r, err := req.Get(url)
+	if err != nil {
+		glog.Error("URL: ", url, " FAIL!\nerr:=", err)
+		return nil, err
+	}
+
+	rcode := r.Response().StatusCode
+	if rcode != 200 {
+		err := fmt.Errorf("URL: ", url, " FAIL! Return status code=%d", rcode)
+		glog.Error(err)
+		return nil, err
+	}
+
+	bytes, err := r.ToBytes()
+	if err != nil {
+		glog.Error("response converts to bytes err:", err)
+		return nil, err
+	}
+
+	json, err := CheckAndPrettyJson(bytes)
+	if err != nil {
+		glog.Error("URL: ", url, " Response converting to Json Fail! err:=", err)
+		return nil, err
+	}
+
+	// fmt.Printf("Response Body:%s\n", json)
+
+	return json, nil
 }

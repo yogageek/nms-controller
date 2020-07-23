@@ -26,4 +26,5 @@ require (
 	golang.org/x/tools v0.0.0-20200617042924-7f3f4b10a808 // indirect
 	gopkg.in/bsm/ratelimit.v1 v1.0.0-20160220154919-db14e161995a // indirect
 	gopkg.in/redis.v4 v4.2.4
+	k8s.io/apimachinery v0.18.6 // indirect
 )

@@ -1,7 +1,8 @@
-package logic
+package group
 
 import (
 	"nms-controller/model"
+	"nms-controller/util"
 	"os"
 
 	"github.com/buger/jsonparser"
@@ -10,7 +11,7 @@ import (
 
 var uriAmf = os.Getenv("URI_AMF")
 
-func doAmf() (groups []model.Group) {
+func DoAmf() (groups []model.Group) {
 	response, err := getApiForAll(uriAmf)
 	if err != nil {
 		glog.Error(err)
@@ -23,7 +24,7 @@ func doAmf() (groups []model.Group) {
 }
 
 func getApiForAll(uri string) ([]byte, error) {
-	response, err := getResponseAndCheckJson(uri)
+	response, err := util.GetResponseAndCheckJson(uri)
 	if err != nil {
 		return nil, err
 	}

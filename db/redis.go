@@ -12,12 +12,12 @@ import (
 	"gopkg.in/redis.v4"
 )
 
-type Redis struct {
+type theRedis struct {
 	RedisClient *redis.Client
 }
 
-func NewRedis() *Redis {
-	return &Redis{
+func newTheRedis() *theRedis {
+	return &theRedis{
 		RedisClient: createRedisClient(),
 	}
 }
@@ -50,11 +50,11 @@ func createRedisClient() *redis.Client {
 	return client
 }
 
-func (r *Redis) FlushRedis() {
+func (r *theRedis) FlushRedis() {
 	r.RedisClient.FlushDb()
 }
 
-func (r *Redis) InsertRedis(cfg model.CustomConfig, metric model.Metric, rMetric model.RedisMetric) {
+func (r *theRedis) InsertRedis(cfg model.CustomConfig, metric model.Metric, rMetric model.RedisMetric) {
 	//存入Redis
 	queryName := strings.Replace(cfg.QueryName, "-", "_", -1)
 	redisKey := queryName + ":" + metric.Header + ":" + metric.Type
@@ -63,7 +63,7 @@ func (r *Redis) InsertRedis(cfg model.CustomConfig, metric model.Metric, rMetric
 	r.RedisClient.RPush(redisKey, redisData)
 }
 
-func (r *Redis) DeleteRedis(cfg model.CustomConfig, metric model.Metric) {
+func (r *theRedis) DeleteRedis(cfg model.CustomConfig, metric model.Metric) {
 	//存入Redis
 	queryName := strings.Replace(cfg.QueryName, "-", "_", -1)
 	redisKey := queryName + ":" + metric.Header + ":" + metric.Type
@@ -71,7 +71,7 @@ func (r *Redis) DeleteRedis(cfg model.CustomConfig, metric model.Metric) {
 }
 
 //redis list 給exporter用
-func (r *Redis) InsertQueryNameKeys(cfg model.CustomConfig) {
+func (r *theRedis) InsertQueryNameKeys(cfg model.CustomConfig) {
 	metrics := cfg.Metrics
 	for _, metric := range metrics {
 		queryName := strings.Replace(cfg.QueryName, "-", "_", -1)

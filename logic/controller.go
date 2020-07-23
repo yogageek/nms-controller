@@ -3,7 +3,9 @@ package logic
 import (
 	"fmt"
 
+	"nms-controller/group"
 	"nms-controller/model"
+	"nms-controller/prom"
 	"time"
 )
 
@@ -21,32 +23,36 @@ func RunControllerLoop() {
 		input <- "RunControllerLoop..."
 	}()
 
-	// t1 := time.NewTimer(time.Second * 1) //這裡設幾秒 就會等幾秒
+	t1 := time.NewTimer(time.Second * 1) //這裡設幾秒 就會等幾秒
 	t2 := time.NewTimer(time.Second * 1)
+	t3 := time.NewTimer(time.Second * 1)
 
 	//run prom
-	// exporter.RunProm()
+	prom.StartPrometheus()
 
 	for {
 		select {
 		//consumer - consume the messages
 		case msg := <-input: //take data from chan
 			fmt.Println(msg) //will print helle world
-		// case <-t1.C: //t1.C拿出channel
-		// RunAdapter()
+		case <-t1.C: //t1.C拿出channel
 		// t1.Reset(time.Second * 10) //使t1重新開始計時
-		//# 取消spec 根據config定義秒數來做
+		//# 拿掉這個規格: 根據config定義秒數來打api
 
 		case <-t2.C:
-			// 	fmt.Println("doSon...")
-			// 	GroupData1 := doSon()
-			// 	fmt.Println("doAmf...")
-			// 	GroupData2 := doAmf()
-			// 	fmt.Println("doImec...")
-			GroupData3 := doImec()
+			prom.UpdatePrometheusData()
+			t3.Reset(time.Second * 5)
+
+		case <-t3.C:
+			// fmt.Println("doSon...")
+			GroupData1 := group.DoSon()
+			// fmt.Println("doAmf...")
+			GroupData2 := group.DoAmf()
+			// fmt.Println("doImec...")
+			GroupData3 := group.DoImec()
 			GroupDatas = []model.Group{}
 			GroupDatas = append(GroupDatas, GroupData3...)
-			// GroupDatas = append(append(GroupData1, GroupData2...), GroupData3...)
+			GroupDatas = append(append(GroupData1, GroupData2...), GroupData3...)
 			t2.Reset(time.Second * 5)
 		}
 	}

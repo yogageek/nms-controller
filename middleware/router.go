@@ -2,8 +2,9 @@ package middleware
 
 import (
 	"net/http"
-	"nms-controller/exporter"
+	"nms-controller/prom"
 
+	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -16,16 +17,8 @@ func Router() *mux.Router {
 	//groups
 	r.HandleFunc("/groups", GetGroups).Methods("GET", "OPTIONS")
 
-	//deprecated
-	//update exporter config
-	// r.HandleFunc("/update", logic.UpdateCongfig).Methods("GET")
-
 	//postgres config
-	r.HandleFunc("/config/{id}", ConfigIDGet).Methods("GET", "OPTIONS")
-	r.HandleFunc("/configs", ConfigsGet).Methods("GET", "OPTIONS")
-	r.HandleFunc("/config", ConfigPost).Methods("POST", "OPTIONS")
-	r.HandleFunc("/config/{id}", ConfigIDPut).Methods("PUT", "OPTIONS") //update adapter pg config
-	r.HandleFunc("/config/{id}", ConfigIDDelete).Methods("DELETE", "OPTIONS")
+	r.HandleFunc("/config", PostConfig).Methods("POST", "OPTIONS")
 
 	// 使用allMiddleware中间件处理
 	r.Use(allMiddleware)
@@ -49,7 +42,11 @@ func Router() *mux.Router {
 	//default prom register
 	// pr.Handle("", promhttp.Handler())
 	//custom prom register
-	pr.Handle("", exporter.RegHandler)
+
+	if prom.RegHandler == nil {
+		glog.Error("prom.RegHandler is nil")
+	}
+	pr.Handle("", prom.RegHandler)
 
 	//not used
 	// reg := prometheus.NewRegistry()
@@ -63,8 +60,6 @@ func promMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//CurrentRoute返回当前请求的匹配路由（如果有）. 这仅在匹配路由的处理程序内部调用时有效，因为匹配的路由存储在请求上下文中，请求上下文在处理程序返回后清除.
 		mux.CurrentRoute(r)
-		//暫時拿掉
-		// exporter.GetOperationByMiddleware()
 		next.ServeHTTP(w, r)
 	})
 }
