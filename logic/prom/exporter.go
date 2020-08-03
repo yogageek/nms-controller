@@ -6,6 +6,7 @@ import (
 	"nms-controller/util"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/buger/jsonparser"
 	"github.com/golang/glog"
@@ -13,25 +14,26 @@ import (
 )
 
 //map key is guageName
-var PromMetric map[string]float64
-var PromLabels map[string][]string
+var promMetric map[string]float64
+var promLabels map[string][]string
+var mlock sync.RWMutex
 
 func init() {
-	PromMetric = make(map[string]float64)
-	PromLabels = make(map[string][]string)
+	promMetric = make(map[string]float64)
+	promLabels = make(map[string][]string)
 }
 
 //UpdatePrometheusData 根據configlist去更新metric, label值
 func UpdatePrometheusData() {
 	fmt.Println("UpdatePrometheusData...")
-	for _, cfg := range configList {
-		updateValueForMetricAndLabels(cfg)
+	for _, cfg := range configs {
+		go updateValueForMetricAndLabels(cfg)
 	}
 }
 
 //將打api取到的值寫入map, key為guageName
 func updateValueForMetricAndLabels(c model.CustomConfig) {
-
+	fmt.Println("updateValueForMetricAndLabels...")
 	url := c.Target
 
 	apiRes, err := util.GetResponseAndCheckJson(url)
@@ -42,15 +44,15 @@ func updateValueForMetricAndLabels(c model.CustomConfig) {
 	//一個metric有一個value, 多個label
 	for _, metric := range c.Metrics {
 		guageName := metric.GetGuageName(c.QueryName)
-		formattedPath, ifArray := ifConfigPathIsArray(metric.Path)
-		metricValue := getValueInJSON(apiRes, formattedPath, ifArray)
+		formattedPath, isArray := ifConfigPathIsArray(metric.Path)
+		metricValue := getValueInJSON(apiRes, formattedPath, isArray)
 		setPromMetricValue(guageName, metricValue)
 
 		labels := []string{}
 		for _, label := range metric.Labels {
 			if label.Value != "null" { //# null之後要改掉
-				formattedPath, ifArray := ifConfigPathIsArray(label.Path)
-				labelValue := getValueInJSON(apiRes, formattedPath, ifArray)
+				formattedPath, isArray := ifConfigPathIsArray(label.Path)
+				labelValue := getValueInJSON(apiRes, formattedPath, isArray)
 				labels = append(labels, labelValue)
 				//fmt.Sprintf("%f", labelValue)) //float to string
 			}
@@ -70,7 +72,7 @@ func ifConfigPathIsArray(configPath string) (string, bool) {
 	return formattedPath, false
 }
 
-func getValueInJSON(apiRes []byte, formattedPath string, ifArray bool) string {
+func getValueInJSON(apiRes []byte, formattedPath string, isArray bool) string {
 	getValueInJSONArray := func() string {
 		var value string
 		jsonparser.ArrayEach(apiRes, func(resEach []byte, dataType jsonparser.ValueType, offset int, err error) {
@@ -94,21 +96,27 @@ func getValueInJSON(apiRes []byte, formattedPath string, ifArray bool) string {
 		return string(b)
 	}
 
-	if ifArray {
+	if isArray {
 		return getValueInJSONArray()
 	} else {
 		return getValueInJSONObject()
 	}
 }
 
+//# 加鎖 否則會發生concurrent map writes error
+
 func setPromMetricValue(key string, value string) {
 	value64, err := strconv.ParseFloat(value, 64)
 	if err != nil {
 		glog.Error("ParseFloat err:", err)
 	}
-	PromMetric[key] = value64
+	mlock.Lock()
+	promMetric[key] = value64
+	mlock.Unlock()
 }
 
 func setPromLabelsValue(key string, value []string) {
-	PromLabels[key] = value
+	mlock.Lock()
+	promLabels[key] = value
+	mlock.Unlock()
 }

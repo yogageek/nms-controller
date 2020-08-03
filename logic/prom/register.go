@@ -2,15 +2,9 @@ package prom
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-)
-
-var (
-	//RegHandler 讓router去註冊
-	RegHandler http.Handler
 )
 
 //StartPrometheus 根據configlist去註冊metric, label名
@@ -20,7 +14,7 @@ func StartPrometheus() {
 	//new my own register
 	reg := prometheus.NewRegistry()
 
-	for _, cfg := range configList {
+	for _, cfg := range configs {
 		//之後取消promDescs  直接寫在collector物件
 		promDescs := cfg.GetPromNameAndConstLabelAndLabel()
 		for _, promDesc := range promDescs {

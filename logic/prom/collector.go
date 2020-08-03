@@ -27,8 +27,8 @@ func newCollector(guageName string, constLabels map[string]string, labels []stri
 //做收集數據時進來
 func (e *collector) Collect(ch chan<- prometheus.Metric) {
 	//根據key(=e.gaugeName)取值
-	PromMetricValue := PromMetric[e.gaugeName]
-	PromLabelsValue := PromLabels[e.gaugeName]
+	PromMetricValue := promMetric[e.gaugeName]
+	PromLabelsValue := promLabels[e.gaugeName]
 
 	metric, err := prometheus.NewConstMetric(e.gaugeMetric, prometheus.GaugeValue, PromMetricValue, PromLabelsValue...)
 	if err != nil {

@@ -2,10 +2,6 @@ package model
 
 import "fmt"
 
-// type Error interface {
-// 	Error() string
-// }
-
 type ErrRes struct {
 	Message     string `json:"error,omitempty"`
 	Description string `json:"description,omitempty"`

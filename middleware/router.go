@@ -2,14 +2,13 @@ package middleware
 
 import (
 	"net/http"
-	"nms-controller/prom"
+	"nms-controller/logic/prom"
 
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-// Router is exported and used in main.go
 func Router() *mux.Router {
 
 	r := mux.NewRouter()
@@ -18,7 +17,7 @@ func Router() *mux.Router {
 	r.HandleFunc("/groups", GetGroups).Methods("GET", "OPTIONS")
 
 	//postgres config
-	r.HandleFunc("/config", PostConfig).Methods("POST", "OPTIONS")
+	r.HandleFunc("/config", postConfigWrapper(postConfig)).Methods("POST", "OPTIONS")
 
 	// 使用allMiddleware中间件处理
 	r.Use(allMiddleware)
@@ -39,16 +38,16 @@ func Router() *mux.Router {
 	pr := r.PathPrefix("/metrics").Subrouter()
 	pr.Use(promMiddleware) // 使用promMiddleware中间件处理
 
-	//default prom register
-	// pr.Handle("", promhttp.Handler())
-	//custom prom register
+	//方法一:default prom register
+	//pr.Handle("", promhttp.Handler())
 
+	//方法二:custom prom register
 	if prom.RegHandler == nil {
 		glog.Error("prom.RegHandler is nil")
 	}
 	pr.Handle("", prom.RegHandler)
 
-	//not used
+	// 方法三:not used
 	// reg := prometheus.NewRegistry()
 	// handler := promhttp.InstrumentMetricHandler(reg, promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	// router.Path("/metrics").Handler(handler)

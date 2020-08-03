@@ -12,6 +12,11 @@ import (
 	"gopkg.in/redis.v4"
 )
 
+// # REDIS 環境變數
+// # REDIS_ADDR="61.219.26.45:32041"
+// # REDIS_PASSWORD=""
+// # REDIS_DB="1"
+
 type theRedis struct {
 	RedisClient *redis.Client
 }

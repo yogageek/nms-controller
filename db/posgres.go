@@ -12,9 +12,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// var PgClient *sql.DB
-// var PostgresDB Postgres
-
 type postgres struct {
 	sqlDB *sql.DB
 }
@@ -48,7 +45,6 @@ func createPGClient() *sql.DB {
 	return db
 }
 
-//這裡要把redis的拿掉
 //查詢pg取得最新一筆config並轉換成[]CustomConfig
 func (pg *postgres) GetCustomConfigs() []model.CustomConfig {
 
@@ -56,13 +52,14 @@ func (pg *postgres) GetCustomConfigs() []model.CustomConfig {
 		fmt.Println("select config from postgres...")
 
 		//只找最新的一筆
-		sql := `SELECT data FROM file WHERE redisdb=$1 ORDER BY id desc limit 1`
+		sql := `SELECT data FROM file WHERE db=$1 ORDER BY id desc limit 1`
 
 		//根據環境變數redis設置 來查詢找哪筆config 也就是說pg可能存在不同最新config分別給不同套controller使用
-		envRedis := os.Getenv("REDIS_DB")
+		//# v1.0.2 拿掉redis改成放在postgres
+		pgdb := os.Getenv("POSTGRES_DB")
 
 		var b []byte
-		err := pg.sqlDB.QueryRow(sql, envRedis).Scan(&b)
+		err := pg.sqlDB.QueryRow(sql, pgdb).Scan(&b)
 		if err != nil {
 			glog.Error(err)
 			// deprecated
@@ -95,15 +92,15 @@ func (pg *postgres) GetCustomConfigs() []model.CustomConfig {
 	return doConvert(doSelect())
 }
 
-// insert one Config in the DB
+// insert one Config in into DB
 func (pg *postgres) InsertConfig(configsb []byte) error {
 
-	sql := `INSERT INTO public.file (data, redisdb) VALUES ($1, $2) RETURNING id`
+	sql := `INSERT INTO public.file (data, db) VALUES ($1, $2) RETURNING id`
 
-	redisdb := os.Getenv("REDIS_DB")
+	db := os.Getenv("POSTGRES_DB")
 
 	var id int
-	err := pg.sqlDB.QueryRow(sql, configsb, redisdb).Scan(&id)
+	err := pg.sqlDB.QueryRow(sql, configsb, db).Scan(&id)
 	if err != nil {
 		glog.Error(err)
 		return err

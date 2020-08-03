@@ -12,6 +12,8 @@ import (
 )
 
 var uriImec = os.Getenv("URI_IMEC")
+
+// var isTestImec = os.Getenv("IS_TEST_IMEC")
 var prefix = "/status/"
 var imec_management = []string{"gui", "edge", "notc"}
 var imec_database = []string{"redis", "mongodb", "rabbitmq"}
@@ -35,7 +37,7 @@ func DoImec() (groups []model.Group) {
 func buildGroupImec(groupkey string, groupsubs []string) model.Group {
 	var members []model.Member
 	for _, gsub := range groupsubs {
-		v := getApi(gsub) //如果api錯誤的話v=nil
+		v := getApiForImec(gsub) //如果api錯誤的話v=nil
 		member := model.Member{
 			Key:   gsub,
 			Value: v,
@@ -52,7 +54,7 @@ func buildGroupImec(groupkey string, groupsubs []string) model.Group {
 	return group
 }
 
-func getApi(gsub string) *string {
+func getApiForImec(gsub string) *string {
 	uri := uriImec + prefix + gsub
 	response, err := util.GetResponseAndCheckJson(uri)
 	if err != nil {
@@ -64,7 +66,7 @@ func getApi(gsub string) *string {
 	return &v
 }
 
-// //for testing
+//for testing
 // func getApi(gsub string) (string, error) {
 // 	rand.Seed(time.Now().UnixNano())
 // 	var v string

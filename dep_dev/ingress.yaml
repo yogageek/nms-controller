@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nms-controller-dev-ing
+spec:
+  rules:
+  - host: nms-controller-dev-svc.nms.eks005.en.internal
+    http:
+      paths:
+      - backend:
+          serviceName: nms-controller-dev-svc
+          servicePort: 8080
+        path: /

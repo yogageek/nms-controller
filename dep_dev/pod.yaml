@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nms-controller
+  name: nms-controller-dev
 spec:
   selector:
     matchLabels:
-      run: nms-controller
+      run: nms-controller-dev
   replicas: 1
   template:
     metadata:
       labels:
-        run: nms-controller
+        run: nms-controller-dev
     spec:
       containers:
-      - name: nms-controller
+      - name: nms-controller-dev
         image: iiicondor/controller:1.0.2
         imagePullPolicy: Always
         resources:
@@ -30,7 +30,7 @@ spec:
           name: http
         env:
         - name: POSTGRES_URL
-          value: "host=61.219.26.42 port=5432 user=postgres password=4ziw9jh70b3v0yydbk48 dbname=nms sslmode=disable"        
+          value: "host=61.219.26.42 port=5432 user=postgres password=4ziw9jh70b3v0yydbk48 dbname=nms sslmode=disable"
         - name: POSTGRES_DB
           value: "0"
         - name: URI_SON
@@ -41,5 +41,3 @@ spec:
           value: "http://fake-son-api-svc-nms-eks005.sa.wise-paas.com/amf/ueStatus"
         - name: TIMEOUT_SEC
           value: "3"
-
-        

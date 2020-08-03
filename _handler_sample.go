@@ -6,15 +6,6 @@ import (
 	"time"
 )
 
-// func Mware(next http.Handler) http.Handler {
-//   return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//     //  if r.RequestURI is in mwarePaths {
-//     //     // do the middleware
-//     //  }
-
-//   }
-// }
-
 func timeHandler(format string) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		tm := time.Now().Format(format)
@@ -55,3 +46,12 @@ func checkSecurity(next httpHandlerFunc) httpHandlerFunc {
 		next(res, req)
 	}
 }
+
+// func Mware(next http.Handler) http.Handler {
+//   return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+//     //  if r.RequestURI is in mwarePaths {
+//     //     // do the middleware
+//     //  }
+
+//   }
+// }

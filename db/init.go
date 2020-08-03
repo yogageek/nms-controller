@@ -1,7 +1,6 @@
 package db
 
 import (
-	"log"
 	"nms-controller/model"
 )
 
@@ -15,12 +14,12 @@ var (
 )
 
 func init() {
-	Rc = newTheRedis()
 	Pg = newPostgres()
 
-	//清除redis資料
-	Rc.FlushRedis()
-	log.Println("flush redis...")
+	// Rc = newTheRedis()
+	// 清除redis資料
+	// Rc.FlushRedis()
+	// log.Println("flush redis...")
 
 	//查詢pg
 	GlobalCustomConfigs = Pg.GetCustomConfigs()

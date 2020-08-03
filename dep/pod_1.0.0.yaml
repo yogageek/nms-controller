@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: nms-controller
-        image: iiicondor/controller:1.0.2
+        image: iiicondor/controller:1.0.0
         imagePullPolicy: Always
         resources:
           requests:
@@ -30,9 +30,17 @@ spec:
           name: http
         env:
         - name: POSTGRES_URL
-          value: "host=61.219.26.42 port=5432 user=postgres password=4ziw9jh70b3v0yydbk48 dbname=nms sslmode=disable"        
-        - name: POSTGRES_DB
+          value: "host=61.219.26.42 port=5432 user=postgres password=4ziw9jh70b3v0yydbk48 dbname=nms sslmode=disable"
+        - name: EXPORTER_URL
+          value: "smart-exporter-svc-nms-eks005.sa.wise-paas.com"
+        - name: REDIS_ADDR
+          value: "61.219.26.45:32041"
+        - name: REDIS_PASSWORD
+          value: ""
+        - name: REDIS_DB
           value: "0"
+        - name: REDIS_POOLSIZE
+          value: "5"
         - name: URI_SON
           value: "http://fake-son-api-svc-nms-eks005.sa.wise-paas.com/son_status"          
         - name: URI_IMEC
@@ -41,5 +49,3 @@ spec:
           value: "http://fake-son-api-svc-nms-eks005.sa.wise-paas.com/amf/ueStatus"
         - name: TIMEOUT_SEC
           value: "3"
-
-        
