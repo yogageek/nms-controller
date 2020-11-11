@@ -3,7 +3,6 @@ package logic
 import (
 	"fmt"
 
-	"nms-controller/logic/group"
 	"nms-controller/logic/prom"
 	"nms-controller/model"
 	"time"
@@ -62,10 +61,10 @@ func RunControllerLoop() {
 			*/
 
 			//目前只放imec的
-			GroupData3 := group.DoImec()
-			GroupDatas = []model.Group{} //注意這裡要放在do之後 不然會空很久
-			GroupDatas = append(GroupDatas, GroupData3...)
-			t2.Reset(time.Second * t2Duration)
+			// GroupData3 := group.DoImec()
+			// GroupDatas = []model.Group{} //注意這裡要放在do之後 不然會空很久
+			// GroupDatas = append(GroupDatas, GroupData3...)
+			// t2.Reset(time.Second * t2Duration)
 
 			// 由於程式啟動後router只註冊一次Reghandler 故之後就算更新reghandler也不會有變化
 			// case <-t3.C:
